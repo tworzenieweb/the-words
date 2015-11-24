@@ -7,12 +7,23 @@ use Behat\Behat\Context\Context;
 use Behat\Behat\Context\SnippetAcceptingContext;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
+use Words\Domain\Validator\AnswerValidator;
+use Words\Domain\Word;
+use Words\Domain\Word\Option;
 
 /**
  * Defines application features from the specific context.
  */
 class WordsContext implements Context, SnippetAcceptingContext
 {
+
+    /**
+     * @var Word
+     */
+    private $word;
+
+    private $wordsCollection;
+
     /**
      * Initializes context.
      *
@@ -22,38 +33,46 @@ class WordsContext implements Context, SnippetAcceptingContext
      */
     public function __construct()
     {
+        $this->wordsCollectionection = [];
     }
 
     /**
-     * @When I want to add new word named :arg1
+     * @When I want to add new test word named :arg1 with correct answer :arg2
      */
-    public function iWantToAddNewWordNamed($arg1)
+    public function iWantToAddNewTestWordNamedWithCorrectAnswer($word, $correctAnswer)
     {
-        throw new PendingException();
+
+        $this->word = new Word($word, new Option($correctAnswer));
     }
 
     /**
      * @When I add option :arg1
+     *
+     * @param $optionName
      */
-    public function iAddOption($arg1)
+    public function iAddOption($optionName)
     {
-        throw new PendingException();
+
+        $this->word->addOption(new Option($optionName));
     }
 
     /**
-     * @When Set The correct answer to :arg1
+     * @Then I should have :arg1 options
      */
-    public function setTheCorrectAnswerTo($arg1)
+    public function iShouldHaveOptions($count)
     {
-        throw new PendingException();
+        expect(count($this->word->getOptions()))->toBe((int) $count);
     }
 
     /**
-     * @Then Validation of :arg1 :arg2 should pass
+     * @Then Validation of :answerHash should pass
      */
-    public function validationOfShouldPass($arg1, $arg2)
+    public function validationOfShouldPass($answerWord)
     {
-        throw new PendingException();
+        $validator = new AnswerValidator($this->word);
+
+        $answer = new Option($answerWord);
+        expect($validator->validate($answer))->toBe(true);
     }
 
     /**
